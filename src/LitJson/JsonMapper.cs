@@ -252,22 +252,29 @@ namespace LitJson
 
             IList<PropertyMetadata> props = new List<PropertyMetadata> ();
 
-            foreach (PropertyInfo p_info in type.GetProperties ()) {
-                if (p_info.Name == "Item")
-                    continue;
+            foreach (PropertyInfo p_info in type.GetProperties()) {
+                // If the Property not contain JsonIgnore
+                if (!p_info.GetCustomAttributes<JsonIngoreAttribute>().GetEnumerator().MoveNext())
+                {
+                    if (p_info.Name == "Item")
+                        continue;
 
-                PropertyMetadata p_data = new PropertyMetadata ();
-                p_data.Info = p_info;
-                p_data.IsField = false;
-                props.Add (p_data);
+                    PropertyMetadata p_data = new PropertyMetadata();
+                    p_data.Info = p_info;
+                    p_data.IsField = false;
+                    props.Add(p_data);
+                }
             }
 
             foreach (FieldInfo f_info in type.GetFields ()) {
-                PropertyMetadata p_data = new PropertyMetadata ();
-                p_data.Info = f_info;
-                p_data.IsField = true;
+                // If the field not contain JsonIgnore
+                if (!f_info.GetCustomAttributes<JsonIngoreAttribute>().GetEnumerator().MoveNext()) {
+                    PropertyMetadata p_data = new PropertyMetadata();
+                    p_data.Info = f_info;
+                    p_data.IsField = true;
 
-                props.Add (p_data);
+                    props.Add(p_data);
+                }
             }
 
             lock (type_properties_lock) {
